@@ -1,3 +1,9 @@
+/*
+Mani Makaremi
+2/13/2018
+class comp585
+project Calculator
+ */
 import javax.swing.JFrame;
 public class Main {
 
