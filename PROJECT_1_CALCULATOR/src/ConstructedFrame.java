@@ -6,6 +6,8 @@ project Calculator
  */
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -45,6 +47,7 @@ public class ConstructedFrame extends JFrame {
     private JButton buttonDivide;
     private JButton buttonDel;
     private JButton buttonNegation;
+    private KeyListener keyListener;
     private double firstNumber;
     private double secondNumber;
     private String tempNumber; // to find the first number and the second number
@@ -67,11 +70,13 @@ public class ConstructedFrame extends JFrame {
         answare = 0;
         buildMenu();
         addMenuListeners();
+        createKeyListener();
         createTextField();
         createPanel();
         createButton();
         createFrame();
         addButtonListener();
+
     }
 
     private void buildMenu() {
@@ -115,6 +120,7 @@ public class ConstructedFrame extends JFrame {
     private void createTextField() {
         final int FILED_LENGTH = 20;
         textField = new JTextField(FILED_LENGTH);
+        textField.addKeyListener(keyListener);
     }
 
     private void createButton() {
@@ -299,6 +305,66 @@ public class ConstructedFrame extends JFrame {
                 buttonCEListener();
             }
         });
+    }
+    private void createKeyListener() {
+        keyListener = new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                //System.out.println("You pressed: " + e.getKeyCode());
+                handleKeyPressed(e.getKeyCode());
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        };
+    }
+
+    private void handleKeyPressed(int keyCode) {
+        switch (keyCode){
+            case 96:
+                button0Listener();
+                break;
+            case 97:
+                button1Listener();
+                break;
+            case 98:
+                button2Listener();
+                break;
+            case 99:
+                button3Listener();
+                break;
+            case 100:
+                button4Listener();
+                break;
+            case 101:
+                button5Listener();
+                break;
+            case 102:
+                button6Listener();
+                break;
+            case 103:
+                button7Listener();
+                break;
+            case 104:
+                button8Listener();
+                break;
+            case 105:
+                button9Listener();
+                break;
+            case 189:
+                buttonMinusListener();
+                break;
+            case 27:
+                buttonEqualListener();
+                break;
+        }
     }
 
     private void buttonCEListener() {
