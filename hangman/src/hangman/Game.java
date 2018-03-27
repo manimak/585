@@ -8,8 +8,13 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.Scanner;
+
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
@@ -22,17 +27,18 @@ public class Game {
 	private String[] letterAndPosArray;
 	private String wrongAnswer = "";//mani
 	private boolean newGame = false;//mani
-	//private String[] words; Ayrin: I add an ArrayList
+	//private String[] words; Ayrin: add an ArrayList
 	private int moves;
 	private int index;
 	private Label label1;
 	private Label label2;
-    private int wrongLettersCount = 0; //Ayrin: for wrong letters
-    private String[] answerLettersPos; //Ayrin: for correct letters
+        private int wrongLettersCount = 0; //Ayrin: for wrong letters
+        private String[] answerLettersPos; //Ayrin: for correct letters
 	private final ReadOnlyObjectWrapper<GameStatus> gameStatus;
 	private ObjectProperty<Boolean> gameState = new ReadOnlyObjectWrapper<Boolean>();
+        public static boolean gameOver = false;
         
-    private ArrayList <String> words = new ArrayList<>();//Ayrin: add this 
+    private ArrayList <String> words = new ArrayList<>();//Ayrin: ArrayList
         
 	public enum GameStatus {
 		GAME_OVER {
@@ -65,17 +71,8 @@ public class Game {
 		}
 	}
 
-	public Game() {
-            //Ayrin: I added few words to play with
-                words.add("pear");
-                words.add("orange");
-                words.add("peach");
-                words.add("peach");
-                words.add("dog");
-                words.add("cat");
-                words.add("bird");
-                words.add("fish");
-                System.out.println("Words list: " + words);
+	public Game() throws FileNotFoundException {
+
 		gameStatus = new ReadOnlyObjectWrapper<GameStatus>(this, "gameStatus", GameStatus.OPEN);
 		gameStatus.addListener(new ChangeListener<GameStatus>() {
 			@Override
@@ -112,7 +109,7 @@ public class Game {
 					//player should enter any key to start a new game
 					if(newGame == true)
 					{
-						reset();
+						return check;
 
 					}
 					else{
@@ -152,12 +149,35 @@ public class Game {
 		return gameStatus.get();
 	}
 
-	private void setRandomWord() {
-                // Ayrin: now the method it is actually setting a new random word from the array created above
-                int random = (int)(Math.random() * ((words.size())));
-		answer = words.get(random);
-                System.out.println("the answer is: " + answer);
+	// Req #6 - Eric Tapia
+	private void setRandomWord() throws FileNotFoundException {
+		// Get dictionary list
+		List<String> dictionaryList = getDictionaryList();
+		// Generate random index within dictionary list range
+		Random randomGenerator = new Random();
+		int randomIndex = randomGenerator.nextInt(dictionaryList.size());
+		// Set word from dictionary to 'answer' variable
+		answer = dictionaryList.get(randomIndex);
+		System.out.println(dictionaryList.get(randomIndex));
 	}
+	// Helper method to read words from file into an arrayList - Eric Tapia
+	private List<String> getDictionaryList() throws FileNotFoundException{
+		List<String> dictionaryList = new ArrayList<>();
+		File inputFile = new File("DictionaryFile.txt");
+		Scanner scannerInput = new Scanner(inputFile);
+		// Read into list
+		while(scannerInput.hasNext()){
+			dictionaryList.add(scannerInput.nextLine().toLowerCase());
+		}
+		return dictionaryList;
+	}
+
+//	private void setRandomWord() {
+//                // Ayrin: now the method it is actually setting a new random word from the array created above
+//                int random = (int)(Math.random() * ((words.size())));
+//		answer = words.get(random);
+//                System.out.println("the answer is: " + answer);
+//	}
         
   
         //Ayrin: "New Addition" this method sets the hints for the word to guess
@@ -202,7 +222,9 @@ public class Game {
 		if(index != -1) {
 			StringBuilder sb = new StringBuilder(tmpAnswer);
 			sb.setCharAt(index, input.charAt(0));
+                        
 			tmpAnswer = sb.toString();
+                        
 		}
 		return index;
 	}
@@ -237,22 +259,29 @@ public class Game {
                         }
                     }                                  
                 }
-	}// end of makeMove()
+	
+        }// end of makeMove()
 
 	//mani
 	//reset the game
-	public void reset() {
-		wrongAnswer = "";
-		newGame = false;
-		label1 = new Label();
-		label2 = new Label();
-		setRandomWord();
-		prepTmpAnswer();
-		prepLetterAndPosArray();
-		moves = 0;
-		gameState.setValue(false); // initial state
-		createGameStatusBinding();
-	}
+	public void reset(GridPane wrongLettersGrid,GridPane goodLettersGrid) throws FileNotFoundException {
+		// Ayrin: reset METHOD NOW TAKES THE TWO GRIDS AS PARAMETERS IN ORDER TO MODIFY THEM.
+            wrongLettersGrid.getChildren().clear(); //Ayrin: CLEARS wrongLettersGrid GRIDPANE.
+            goodLettersGrid.getChildren().clear();  //Ayrin: CLEARS goodLettersGrid GRIDPANE.
+			wrongAnswer = "";
+			gameOver = false;
+			moves = 0;
+            setRandomWord();
+            prepTmpAnswer();
+            prepLetterAndPosArray();
+
+            gameState.setValue(false); // initial state
+            createGameStatusBinding();
+
+             //Ayrin: SETS THE GAME OVER BOOLEAN TO FALSE SO THE makeMove METHOD CAN BE CALLED
+
+
+        }
 	//
 
 	private int numOfTries() {
@@ -260,17 +289,26 @@ public class Game {
 	}
 
 	public static void log(String s) {
+            
 		System.out.println(s);
-	}
+            
+            }
 
 	private GameStatus checkForWinner(int status) {
 		log("in checkForWinner");
+		log(Integer.toString(moves));
 		if(tmpAnswer.equals(answer)) {
 			log("won");
+                        gameOver=true; /*Ayrin: SETS THE GAME OVER BOOLEAN 
+                                        TO TRUE SO THE makeMove METHOD CAN'T BE 
+                                        CALLED AND NO FURTHER GUESSES CAN BE MADE.*/
 			return GameStatus.WON;
 		}
 		else if(moves == numOfTries()) {
 			log("game over");
+                        gameOver=true;  /*Ayrin: SETS THE GAME OVER BOOLEAN 
+                                         TO TRUE SO THE makeMove METHOD CAN'T BE 
+                                         CALLED AND NO FURTHER GUESSES CAN BE MADE.*/              
 			return GameStatus.GAME_OVER;
 		}
 		else {

@@ -15,7 +15,7 @@
 	<top>
 		<MenuBar>
 			<Menu text="Game">
-				<MenuItem text="Hangman" onAction="#newHangman"/>
+				<MenuItem fx:id="HangmanButton" text="Hangman"/>
 				<MenuItem text="Quit" onAction="#quit"/>
 			</Menu>
 		</MenuBar>
