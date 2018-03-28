@@ -194,6 +194,7 @@ public class Game {
 		for(int i = 0; i < answer.length(); i++) {
 			sb.append(" ");
 		}
+		log(answer);
 		tmpAnswer = sb.toString();
 	}
 
@@ -211,20 +212,28 @@ public class Game {
 			if(letterAndPosArray[i].equals(input)) {
 				index = i;
 				letterAndPosArray[i] = "";
+
 				break;
 			}
 		}
+
 		return index;
 	}
 
 	private int update(String input) {
 		int index = getValidIndex(input);
+		char[] answerDos;
+
 		if(index != -1) {
 			StringBuilder sb = new StringBuilder(tmpAnswer);
-			sb.setCharAt(index, input.charAt(0));
-                        
+			// Updates the temp answer to char at every position - Eric Tapia
+			answerDos = answer.toCharArray();
+			for(int i = 0; i < answer.length(); i++){
+				if(answerDos[i] == input.charAt(0)){
+					sb.setCharAt(i, input.charAt(0));
+				}
+			}
 			tmpAnswer = sb.toString();
-                        
 		}
 		return index;
 	}
@@ -256,6 +265,7 @@ public class Game {
                             goodLettersGrid.add(label2, i, 0);
 
                           System.out.println(tmpAnswer);
+
                         }
                     }                                  
                 }
